@@ -1,4 +1,4 @@
-package licenseplate;
+package server;
 
 public class Server {
 	
