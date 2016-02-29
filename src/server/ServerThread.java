@@ -23,6 +23,7 @@ public class ServerThread extends Thread {
 			this.port = servicePort;
 			this.socket = new DatagramSocket(servicePort);
 			this.mcSocket = new MulticastSocket(multicastPort);
+			this.mcSocket.setTimeToLive(1);
 			this.register = new HashMap<String, String>();
 			this.mcgroup = multicastAddress;
 			this.mcport = multicastPort;
