@@ -1,22 +1,28 @@
 package server;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.SocketTimeoutException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Optional;
 
 public class ServerThread extends Thread {
 	private static final String NOT_FOUND = "NOT_FOUND";
+	@SuppressWarnings("unused")
 	private DatagramSocket socket;
 	private MulticastSocket mcSocket;
 	private InetAddress mcgroup;
 	private HashMap<String, String> register;
 	private int mcport;
 	private int port;
+	private Socket tcpsocket;
+	
+	public ServerThread(Socket socket){
+		this.tcpsocket = socket;
+	}
 		
 	public ServerThread(int servicePort, InetAddress multicastAddress, int multicastPort){
 		try {
@@ -70,6 +76,7 @@ public class ServerThread extends Thread {
 			return null;
 	}
 	
+	@SuppressWarnings("unused")
 	private void announce(){
 		try {
 			String ipaddress = InetAddress.getLocalHost().getHostAddress() + " " +Integer.toString(this.port);
@@ -88,24 +95,14 @@ public class ServerThread extends Thread {
 		while(true){
 			try{
 				
-				byte[] buf = new byte[512];
-				DatagramPacket packet = new DatagramPacket(buf, buf.length);
-				this.socket.setSoTimeout(1000);
-				this.socket.receive(packet);
-				int length = packet.getLength();
+				PrintWriter out = new PrintWriter(this.tcpsocket.getOutputStream(), true);
+				BufferedReader in = new BufferedReader(new InputStreamReader(this.tcpsocket.getInputStream()));
 				
-				String request = new String(java.util.Arrays.copyOfRange(packet.getData(), 0, length), "UTF-8");		
-				System.out.println(request);
-				
-				String reply = this.parseMessage(request);
-				byte[] bufOut = reply.getBytes();
-				DatagramPacket replyPacket = new DatagramPacket(bufOut, bufOut.length, packet.getAddress(), packet.getPort());
-				this.socket.send(replyPacket);
+				String input = in.readLine();
+				String output = this.parseMessage(input);
+				out.println(output);
 			}
-			catch(SocketTimeoutException t){
-				this.announce();
-				continue;
-			}
+			
 			catch(IOException e){
 				break;
 			}
