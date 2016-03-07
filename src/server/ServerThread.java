@@ -30,11 +30,11 @@ public class ServerThread extends Thread {
 		else if(args[0].equals("register") && args.length == 3){
 			if (validatePlate(args[1])){				
 				System.out.println("registering " + args[1]);
-				this.register.put(args[1].trim(), args[2]);
+				Server.db.put(args[1].trim(), args[2]);
 				for(String entry: this.register.keySet()){
 					System.out.println(entry);
 				}
-				return Integer.toString(register.size());
+				return Integer.toString(Server.db.size());
 			}
 			else return Integer.toString(-1);
 			
@@ -45,7 +45,7 @@ public class ServerThread extends Thread {
 				System.out.println(entry);
 			}
 			System.out.println("looking up " + args[1]);
-			String owner = this.register.get(args[1].trim());
+			String owner = Server.db.get(args[1].trim());
 			if (owner == null)
 				return NOT_FOUND;
 			else
